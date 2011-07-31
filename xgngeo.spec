@@ -57,7 +57,7 @@ install -D -m 644 %{SOURCE3} %{buildroot}%{_miconsdir}/%{name}.png
 %{_bindir}/%{name}
 %dir %{py_puresitedir}/%{name}
 %{py_puresitedir}/%{name}/*.py
-%{py_puresitedir}/XGngeo-16-py2.6.egg-info
+%{py_puresitedir}/XGngeo-16-py*.egg-info
 %{_datadir}/applications/%{name}.desktop
 %{_liconsdir}/%{name}.png
 %{_iconsdir}/%{name}.png
