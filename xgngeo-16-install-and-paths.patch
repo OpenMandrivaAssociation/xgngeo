@@ -1,0 +1,307 @@
+diff -NarU 3 XGngeo-16.orig/data/py/command.py XGngeo-16/data/py/command.py
+--- XGngeo-16.orig/data/py/command.py	2006-09-17 17:51:03.000000000 +0200
++++ XGngeo-16/data/py/command.py	2007-03-27 11:29:25.000000000 +0200
+@@ -27,7 +27,7 @@
+ __date__ = "$Date: 2006/07/23 15:02:17 $"
+ 
+ from threading import Thread
+-from gtk import threads_enter, threads_leave
++from gtk.gdk import threads_enter, threads_leave
+ from os import popen
+ 
+ class ThreadedCmd(Thread):
+diff -NarU 3 XGngeo-16.orig/data/py/__init__.py XGngeo-16/data/py/__init__.py
+--- XGngeo-16.orig/data/py/__init__.py	2006-09-30 13:51:15.000000000 +0200
++++ XGngeo-16/data/py/__init__.py	2007-03-27 11:28:43.000000000 +0200
+@@ -63,7 +63,7 @@
+ datarootpath = os.path.join(sys.prefix, 'share', 'xgngeo')
+ 
+ # Internationalization.
+-gettext.install("xgngeo", os.path.join(datarootpath, "locale"))
++gettext.install("xgngeo", os.path.join(sys.prefix, "share", "locale"))
+ 
+ class XGngeo:
+ 	def __init__(self):
+@@ -126,18 +126,18 @@
+ 			textbuffer.set_text(file.read())
+ 			file.close()
+ 		else:
+-			if filename[-11:] == "LICENSE.txt":
++			if filename[-3:] == "GPL":
+ 				textbuffer.set_text(_("Error: Unable to open the file \"%s\"!\n"
+ 				"You can read the GNU GPL license at:\n"
+ 				"http://www.gnu.org/licenses/gpl.html") % filename)
+ 			else: display = 0
+ 
+ 		if display:
+-			dialog = gtk.Dialog((filename, _("License"))[filename[-11:] == \
+-				"LICENSE.txt"], self.window, gtk.DIALOG_NO_SEPARATOR |
++			dialog = gtk.Dialog((filename, _("License"))[filename[-3:] == "GPL"], \
++				self.window, gtk.DIALOG_NO_SEPARATOR |
+ 				gtk.DIALOG_MODAL, (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+ 
+-			if filename[-11:]=="LICENSE.txt":
++			if filename[-3:]== "GPL":
+ 				label = gtk.Label(_("This program is released under the terms "
+ 					"of the GNU General Public License."))
+ 				label.set_padding(2, 4)
+@@ -167,7 +167,7 @@
+ 		# Waiting for Gngeo to hang up...
+ 		self.emulator.rom_waiting_for_hanging_up()
+ 
+-		gtk.threads_enter() # Without this, it often bugs. :p
++		gtk.gdk.threads_enter() # Without this, it often bugs. :p
+ 		
+ 		# Simple post-execution instruction.
+ 		self.history_add(self.romFullName,self.romPath) # Appendding ROM too history.
+@@ -225,7 +225,7 @@
+ 		self.stopMenu_item.set_sensitive(False)
+ 		self.execMenu_item.set_sensitive(True)
+ 		for x in self.widgets["config_menu"].get_children(): x.set_sensitive(True)
+-		gtk.threads_leave()
++		gtk.gdk.threads_leave()
+ 	
+ 	def rom_loading_in_progress(self):
+ 		"""Graphicaly indicate the user that, although he
+@@ -237,10 +237,10 @@
+ 		message = _("Starting ROM (%s)") % self.romMameName
+ 		for x in range(42): #Don't panic!
+ 			if not self.emulator.rom_running_state(): break
+-			gtk.threads_enter()
++			gtk.gdk.threads_enter()
+ 			self.widgets["statusbar"].push(self.context_id, ("%s%s" %
+ 				(message, ("." * x))))
+-			gtk.threads_leave()
++			gtk.gdk.threads_leave()
+ 			time.sleep(0.42)
+ 
+ 	def gngeo_exec(self, widget=None):
+@@ -2579,7 +2579,7 @@
+ 
+ 		menu_item = gtk.ImageMenuItem(gtk.STOCK_HELP)
+ 		menu_item.connect("activate", self.display_file,\
+-		os.path.join(datarootpath, "doc", "xgngeo-doc.txt"))
++		os.path.join(sys.prefix, "share", "doc", "xgngeo-16", "xgngeo-doc.txt"))
+ 		menu.append(menu_item)
+ 
+ 		menu_item = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
+@@ -2587,7 +2587,8 @@
+ 		menu.append(menu_item)
+ 
+ 		menu_item = gtk.MenuItem(_("_License"))
+-		menu_item.connect("activate", self.display_file, "LICENSE.txt")
++		menu_item.connect("activate", self.display_file, \
++		os.path.join(sys.prefix, "share", "common-licenses", "GPL"))
+ 		menu.append(menu_item)
+ 
+ 		# Packing MemuBar into the Box
+@@ -2658,7 +2659,4 @@
+ 					# Everything seems okay, so let's display the main window...
+ 					self.main()
+ 
+-if __name__ == "__main__":
+-	gtk.threads_init()
+-	XGngeo().boot()
+-	gtk.main()
++
+diff -NarU 3 XGngeo-16.orig/data/script/xgngeo XGngeo-16/data/script/xgngeo
+--- XGngeo-16.orig/data/script/xgngeo	1970-01-01 01:00:00.000000000 +0100
++++ XGngeo-16/data/script/xgngeo	2007-03-27 11:34:09.000000000 +0200
+@@ -0,0 +1,29 @@
++#!/usr/bin/env python
++"""XGngeo: a frontend for Gngeo in GTK. ^_^.
++
++Copyleft 2003, 2004, 2005, 2006, 2007 Choplair-network
++$Id: xgngeo,v 1.1 2007/03/22 19:04:22 pachilor Exp $
++
++This program is free software; you can redistribute it and/or
++modify it under the terms of the GNU General Public License
++as published by the Free Software Foundation; either version 2
++of the License, or (at your option) any later version.
++
++This program is distributed in the hope that it will be useful,
++but WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++GNU General Public License for more details.
++
++You should have received a copy of the GNU General Public License
++along with this program; if not, write to the Free Software
++Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++"""
++
++# Launching the program!
++from xgngeo import *
++import gtk
++
++gtk.gdk.threads_init()
++XGngeo().boot()
++gtk.main()
++
+diff -NarU 3 XGngeo-16.orig/data/script/xgngeo_startup.py XGngeo-16/data/script/xgngeo_startup.py
+--- XGngeo-16.orig/data/script/xgngeo_startup.py	2006-09-17 17:51:03.000000000 +0200
++++ XGngeo-16/data/script/xgngeo_startup.py	1970-01-01 01:00:00.000000000 +0100
+@@ -1,40 +0,0 @@
+-#!/usr/bin/env python
+-"""XGngeo: a frontend for Gngeo in GTK. ^_^.
+-
+-Copyleft 2003, 2004, 2005, 2006 Choplair-network
+-$Id: xgngeo_startup.py,v 1.2 2006/07/26 00:41:04 achraf Exp $
+-
+-This program is free software; you can redistribute it and/or
+-modify it under the terms of the GNU General Public License
+-as published by the Free Software Foundation; either version 2
+-of the License, or (at your option) any later version.
+-
+-This program is distributed in the hope that it will be useful,
+-but WITHOUT ANY WARRANTY; without even the implied warranty of
+-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-GNU General Public License for more details.
+-
+-You should have received a copy of the GNU General Public License
+-along with this program; if not, write to the Free Software
+-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-"""
+-
+-__author__ = "Choplair-network"
+-__copyright__ = "Copyleft 2003, 2004, 2005, 2006 Choplair-network"
+-__license__ = "GPL"
+-__revision__ = "$Revision: 1.2 $"
+-# $Source: /cvsroot/xgngeo/xgngeo/data/script/xgngeo_startup.py,v $
+-__date__ = "$Date: 2006/07/26 00:41:04 $"
+-
+-import sys
+-import os.path
+-
+-package_dir = os.path.join(sys.prefix, "lib","python%s" % sys.version[:3], \
+-		           "site-packages", "xgngeo")
+-
+-#Append XGngeo's module directory to `sys.path'.
+-sys.path.append(package_dir)
+-
+-#Launch the program!
+-execfile(os.path.join(package_dir, "__init__.py"))
+-
+diff -NarU 3 XGngeo-16.orig/setup.py XGngeo-16/setup.py
+--- XGngeo-16.orig/setup.py	2006-09-24 22:03:40.000000000 +0200
++++ XGngeo-16/setup.py	2007-03-25 22:52:51.000000000 +0200
+@@ -1,8 +1,8 @@
+ #!/usr/bin/env python
+ """XGngeo: a frontend for Gngeo in GTK. ^_^.
+ 
+-	Copyleft 2003, 2004, 2005, 2006 Choplair-network
+-	$Id: setup.py,v 1.12 2006/09/24 20:03:40 pachilor Exp $
++	Copyleft 2003, 2004, 2005, 2006, 2007 Choplair-network
++	$Id: setup.py,v 1.14 2007/03/22 19:04:22 pachilor Exp $
+ 
+ 	This program is free software; you can redistribute it and/or
+ 	modify it under the terms of the GNU General Public License
+@@ -24,73 +24,62 @@
+ import glob
+ import sys
+ 
++if "install" in sys.argv:
++   #XGngeo startup script.
++   scriptfiles = [os.path.join("data", "script", "xgngeo")]
++else: scriptfiles = []
++
+ setup(
+-	name='XGngeo',
+-	version='16',
+-	description='A frontend for the Gngeo emulator.',
+-	long_description="""
++	name = 'XGngeo',
++	version = '16',
++	description = 'A frontend for the Gngeo emulator.',
++	long_description = """
+ 		``XGngeo" is a frontend providing a complete, practical and
+ 		user-friendly GTK+ interface over ``Gngeo" which is a fast and
+ 		powerful command line Neo Geo emulator for the Unix platforms
+ 		(GNU/Linux, FreeBSD...).
+ 		""",
+-	author='Choplair-network',
+-	author_email='contact@choplair.org',
+-	url='http://www.choplair.org/',
+-	download_url='http://developer.berlios.de/project/showfiles.php?group_id=1276',
+-	license='GNU General Public License',
+-	platforms='Unix',
+-	packages=['xgngeo'],
+-	package_dir={'xgngeo': 'data/py'},
++	author = 'Choplair-network',
++	author_email = 'contact@choplair.org',
++	url = 'http://www.choplair.org/',
++	download_url = 'http://developer.berlios.de/project/showfiles.php?group_id=1276',
++	license = 'GNU General Public License',
++	platforms = 'Unix',
++	packages = ['xgngeo'],
++	package_dir = {'xgngeo': 'data/py'},
++	scripts =  scriptfiles,
+ 	data_files=[
+ 		#Images.
+-		(os.path.join("share", "xgngeo", "img"),glob.glob(os.path.join("data", "img", "*.png"))),
++		(os.path.join("share", "xgngeo", "img"),
++			glob.glob(os.path.join("data", "img", "*.png"))),
+ 		#ROM info.
+-		(os.path.join("share", "xgngeo"),glob.glob(os.path.join("data", "rominfos.*"))),
+-		#License text.
+-		(os.path.join("share", "xgngeo"),['LICENSE.txt']),
+-		#Plain text documentation.
+-		(os.path.join("share", "xgngeo","doc"),[os.path.join("doc", "xgngeo-doc.txt")]),
++		(os.path.join("share", "xgngeo"),
++			glob.glob(os.path.join("data", "rominfos.*"))),
+ 		# *.desktop (menu entry)
+-		(os.path.join("share", "applications"), [os.path.join("data", "misc", "xgngeo.desktop")]),
++		(os.path.join("share", "applications"),
++			[os.path.join("data", "misc", "xgngeo.desktop")]),
+ 		#Localization files.
+ 		#Spanish
+-		(os.path.join("share", "xgngeo", "locale", "es", "LC_MESSAGES"),
++		(os.path.join("share", "locale", "es", "LC_MESSAGES"),
+ 			[os.path.join("data", "locale", "es", "LC_MESSAGES", "xgngeo.mo")]),
+ 		#German
+-		(os.path.join("share", "xgngeo", "locale", "de", "LC_MESSAGES"),
++		(os.path.join("share", "locale", "de", "LC_MESSAGES"),
+ 			[os.path.join("data", "locale", "de", "LC_MESSAGES", "xgngeo.mo")]),
+ 		#French
+-		(os.path.join("share", "xgngeo", "locale", "fr", "LC_MESSAGES"),
++		(os.path.join("share", "locale", "fr", "LC_MESSAGES"),
+ 			[os.path.join("data", "locale", "fr", "LC_MESSAGES", "xgngeo.mo")]),
+ 		#Polish
+-		(os.path.join("share", "xgngeo", "locale", "pl", "LC_MESSAGES"),
++		(os.path.join("share", "locale", "pl", "LC_MESSAGES"),
+ 			[os.path.join("data", "locale", "pl", "LC_MESSAGES", "xgngeo.mo")]),
+ 		#Portuguese of Brazil
+-		(os.path.join("share", "xgngeo", "locale", "pt_BR", "LC_MESSAGES"),
+-			[os.path.join("data", "locale", "pt_BR", "LC_MESSAGES", "xgngeo.mo")])
++		(os.path.join("share", "locale", "pt_BR", "LC_MESSAGES"),
++			[os.path.join("data", "locale", "pt_BR", "LC_MESSAGES", "xgngeo.mo")]),
+ 		]
+ 	)
+-	
++
+ if "install" in sys.argv:
+-	#Post-install stuffs (Unix).
+-	if os.name == "posix":
+-		#Determining the best start-up script path prefix.
+-		prefix = None
+-		str = "--prefix="
+-
+-		for val in sys.argv: #Check if mentioned as command parameter.
+-			if val[:len(str)] == str:
+-				prefix = val[len(str):]
+-				break
+-
+-		if not prefix:
+-			prefix = sys.prefix #Use Python prefix.
+-
+-		startup_script = os.path.join(prefix, "bin", "xgngeo") #Startup script path.
+-		startup_script_dir = os.path.dirname(startup_script) 
+-		
+-		import shutil
+-		if not os.path.exists(startup_script_dir): os.makedirs(startup_script_dir)
+-		shutil.copy("./data/script/xgngeo_startup.py", startup_script)
+-		print "XGngeo start-up script put into `%s'." % startup_script_dir
++   # Post-installing stuffs (Unix).
++   if os.name == "posix":
++      print "XGngeo has been successfully installed!\n"\
++         "You may now use the 'xgngeo' command to run the program."
++
