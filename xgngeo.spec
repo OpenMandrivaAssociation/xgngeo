@@ -76,3 +76,38 @@ rm -rf %{buildroot}
 %{clean_menus}
 %endif
 
+
+
+%changelog
+* Sun Jul 31 2011 Andrey Bondrov <abondrov@mandriva.org> 16-2mdv2012.0
++ Revision: 692526
+- Fix python 2.6 -> 2.7 issue
+- imported package xgngeo
+
+
+* Sat Jul 23 2011 Andrey Bondrov <bondrov@math.dvgu.ru> 16-2mdv2011.0
+- Import from PLF
+- Remove PLF reference
+
+* Tue Mar 27 2007 Guillaume Bedot <littletux@zarb.org> 16-1plf2007.1
+- New release
+- lots of installation changes
+- some changes from CVS (thanks to Choplair!)
+
+* Thu Jun 15 2006 Guillaume Bedot <littletux@zarb.org> 15-3plf2007.0
+- standard mkrel
+- XDG menu
+
+* Mon Sep 19 2005 Guillaume Bedot <littletux@zarb.org> 15-2plf
+- Reupload
+
+* Mon Sep 19 2005 Guillaume Bedot <littletux@zarb.org> 15-1plf
+- New release 15
+- Updated multi-user / paths patch
+- Use mkrel
+
+* Mon Jan 31 2005 Guillaume Bedot <littletux@zarb.org> 14-2plf
+- Updated patch patch and menu section.
+
+* Mon Apr 19 2004 Guillaume Bedot <littletux@zarb.org> 14-1plf
+- First package
