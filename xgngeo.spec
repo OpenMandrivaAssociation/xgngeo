@@ -19,7 +19,7 @@ Source3: %{name}-48.png
 Patch0: %{name}-%{version}-install-and-paths.patch
 Group: Emulators
 License: GPLv2
-URL: http://www.choplair.org/?XGngeo
+URL: https://www.choplair.org/?XGngeo
 #or http://choplair.org/?fr/XGngeo
 BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
